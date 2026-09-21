@@ -115,6 +115,13 @@ class RakutenClient:
     ) -> list[Offer]:
         if not keyword and not item_code:
             raise ValueError("keyword か item_code のどちらかが必要です")
+        if keyword:
+            short = [t for t in keyword.split() if len(t) < 2]
+            if short:
+                # API の仕様: キーワードの各語は 2 文字以上（違反すると 400 になる）
+                raise ValueError(
+                    f"検索キーワードの各語は2文字以上にしてください（1文字の語: {', '.join(short)}）"
+                )
         params: dict[str, Any] = {
             "format": "json",
             "formatVersion": 2,
