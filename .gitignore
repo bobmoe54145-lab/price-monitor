@@ -1,0 +1,8 @@
+.env
+*.json
+!tests/fixtures/*.json
+.venv/
+__pycache__/
+.pytest_cache/
+.claude/
+.DS_Store

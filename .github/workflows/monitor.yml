@@ -1,0 +1,34 @@
+name: price-monitor
+
+on:
+  schedule:
+    # JST 08:00 / 12:00 / 16:00 / 20:00（cron は UTC）
+    - cron: "0 23,3,7,11 * * *"
+  workflow_dispatch:
+
+# 実行が重なって同じシートを同時に書き換えないようにする
+concurrency:
+  group: price-monitor
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python -m price_monitor run
+        env:
+          RAKUTEN_APP_ID: ${{ secrets.RAKUTEN_APP_ID }}
+          RAKUTEN_ACCESS_KEY: ${{ secrets.RAKUTEN_ACCESS_KEY }}
+          RAKUTEN_ORIGIN: ${{ secrets.RAKUTEN_ORIGIN }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
